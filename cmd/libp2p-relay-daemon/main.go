@@ -12,14 +12,14 @@ import (
 	rcmgr "github.com/libp2p/go-libp2p/p2p/host/resource-manager"
 	"github.com/libp2p/go-libp2p/p2p/net/connmgr"
 	relayv2 "github.com/libp2p/go-libp2p/p2p/protocol/circuitv2/relay"
-	ma "github.com/multiformats/go-multiaddr"
-	manet "github.com/multiformats/go-multiaddr/net"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"time"
+	ma "github.com/multiformats/go-multiaddr"
+	manet "github.com/multiformats/go-multiaddr/net"
 )
 
 // Define the names of arguments here.
@@ -64,11 +64,12 @@ func main() {
 	var opts []libp2p.Option
 
 	opts = append(opts,
-		libp2p.UserAgent("relayd/1.0"),
 		libp2p.Identity(privk),
 		libp2p.DisableRelay(),
 		libp2p.ListenAddrStrings(cfg.Network.ListenAddrs...),
 		libp2p.ResourceManager(rmgr),
+		libp2p.ForceReachabilityPublic(),
+		libp2p.EnableNATService(),
 	)
 
 	// load PSK if applicable
@@ -156,7 +157,8 @@ func main() {
 		fmt.Printf("Starting RelayV2...\n")
 		_, err = relayv2.New(host,
 			relayv2.WithResources(cfg.RelayV2.Resources),
-			relayv2.WithACL(acl))
+			relayv2.WithACL(acl),
+			relayv2.WithMetricsTracer(relayv2.NewMetricsTracer(relayv2.WithRegisterer(prometheus.DefaultRegisterer))))
 		if err != nil {
 			panic(err)
 		}
