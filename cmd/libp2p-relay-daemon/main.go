@@ -67,6 +67,7 @@ func main() {
 
 	opts = append(opts,
 		libp2p.Identity(privk),
+		libp2p.UserAgent("relayd/1.0"),
 		libp2p.DisableRelay(),
 		libp2p.ListenAddrStrings(cfg.Network.ListenAddrs...),
 		libp2p.ResourceManager(rmgr),
