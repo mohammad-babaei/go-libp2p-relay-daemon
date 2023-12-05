@@ -20,6 +20,8 @@ import (
 	"time"
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
+	"github.com/libp2p/go-libp2p/p2p/security/noise"
+	libp2ptls "github.com/libp2p/go-libp2p/p2p/security/tls"
 )
 
 // Define the names of arguments here.
@@ -70,6 +72,12 @@ func main() {
 		libp2p.ResourceManager(rmgr),
 		libp2p.ForceReachabilityPublic(),
 		libp2p.EnableNATService(),
+		// support TLS connections
+		libp2p.Security(libp2ptls.ID, libp2ptls.New),
+		// support noise connections
+		libp2p.Security(noise.ID, noise.New),
+		// support any other default transports (TCP)
+		libp2p.DefaultTransports,
 	)
 
 	// load PSK if applicable
